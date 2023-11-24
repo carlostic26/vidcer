@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_enhancer/domain/controller/theme_preferences.dart';
+import 'package:video_enhancer/presentation/screens/home_screen.dart';
 import '../provider/riverpod_provider.dart';
 
 class LoadingScreen extends ConsumerWidget {
-  bool _isMounted = true;
+  final bool _isMounted = true;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +20,7 @@ class LoadingScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 14, 14, 14),
+      backgroundColor: const Color.fromARGB(255, 13, 17, 25),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +39,7 @@ class LoadingScreen extends ConsumerWidget {
               height: 10,
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -57,13 +58,10 @@ class LoadingScreen extends ConsumerWidget {
                       style: TextStyle(
                           fontSize: 20, color: Colors.deepOrangeAccent),
                     ),
-                    progressColor: Colors.grey,
+                    progressColor: Colors.orange,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(
-              height: 2,
             ),
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -78,7 +76,7 @@ class LoadingScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(
-              height: 30,
+              height: 40,
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -93,16 +91,16 @@ class LoadingScreen extends ConsumerWidget {
                   style: ButtonStyle(
                     backgroundColor: buttonEnabled
                         ? MaterialStateProperty.all<Color>(Colors
-                            .blueGrey) // Color de fondo cuando está habilitado
+                            .orange) // Color de fondo cuando está habilitado
                         : MaterialStateProperty.all<Color>(Colors
-                            .grey), // Color de fondo cuando está deshabilitado
+                            .blueGrey), // Color de fondo cuando está deshabilitado
                   ),
 
                   child: Text(
                     'Continuar',
                     style: TextStyle(
                         fontSize: 10,
-                        color: buttonEnabled ? Colors.white : Colors.blueGrey),
+                        color: buttonEnabled ? Colors.black : Colors.grey),
                   ),
                 ),
               ),
@@ -136,15 +134,20 @@ class LoadingScreen extends ConsumerWidget {
 
     print('primer acceso bool:$primerAcceso');
 
-    if (primerAcceso == true || primerAcceso == null) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+
+    //POR SI DESEO PONER PANTALLA DE TUTORIAL
+
+/*     if (primerAcceso == true || primerAcceso == null) {
       /*     Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (_) => TutorialScreen())); */
     } else {
       if (primerAcceso == false) {
-        /*     Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (_) => CategoriasSelectCards())); */
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => const HomeScreen()));
       }
-    }
+    } */
   }
 }
 

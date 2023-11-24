@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'domain/controller/theme_preferences.dart';
 import 'presentation/screens/loading_screen.dart';
+import 'presentation/theme.dart';
 
 Future<void> main() async {
 /*   // init adv
@@ -43,6 +44,7 @@ Future<void> main() async {
   runApp(ProviderScope(
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: vidcerTheme,
       home: LoadingScreen(),
     ),
   ));
