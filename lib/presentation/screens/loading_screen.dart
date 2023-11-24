@@ -29,7 +29,7 @@ class LoadingScreen extends ConsumerWidget {
               height: 100,
             ),
             Container(
-              height: 200,
+              height: 180,
               padding: const EdgeInsets.symmetric(
                 horizontal: 5,
               ),

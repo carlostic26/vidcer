@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_enhancer/presentation/widgets/drawer.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -21,14 +22,6 @@ class HomeScreen extends ConsumerWidget {
             fontSize: 16.0, /*fontWeight: FontWeight.bold*/
           ),
         ),
-        leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            }),
         actions: [
           Padding(
             padding: const EdgeInsets.all(10),
@@ -59,6 +52,9 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+      drawer: DrawerVidcer(
+        context: context,
       ),
     );
   }
