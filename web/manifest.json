@@ -1,6 +1,6 @@
 {
-    "name": "video_enhancer",
-    "short_name": "video_enhancer",
+    "name": "vidcer",
+    "short_name": "vidcer",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

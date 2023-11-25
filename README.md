@@ -1,4 +1,4 @@
-# video_enhancer
+# vidcer
 
 A new Flutter project.
 

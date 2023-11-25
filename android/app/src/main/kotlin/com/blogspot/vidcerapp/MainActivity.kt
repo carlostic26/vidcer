@@ -1,4 +1,4 @@
-package com.example.video_enhancer
+package com.blogspot.vidcerapp
 
 import io.flutter.embedding.android.FlutterActivity
 

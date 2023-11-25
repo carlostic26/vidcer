@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_enhancer/presentation/widgets/drawer.dart';
+import 'package:vidcer/domain/controller/theme.dart';
+import 'package:vidcer/presentation/widgets/drawer.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -42,10 +43,59 @@ class HomeScreen extends ConsumerWidget {
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
-                child: SizedBox(
-                    height: sizeHeigt * 0.2, child: const Placeholder()),
+              Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  InkWell(
+                    onTap: () {
+                      // Acción al hacer clic en el Container
+                      // Puedes poner aquí la lógica que deseas ejecutar al hacer clic
+                    },
+                    child: Container(
+                      height: sizeHeigt * 0.15,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.orange.shade900,
+                            Colors.orange.shade600,
+                          ], // Degradado azul
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 40.0,
+                            height: 40.0,
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                // Acción al presionar el botón
+                              },
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: const Icon(Icons.add),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              'Nuevo proyecto',
+                              style: TextStyle(
+                                color: vidcerTheme.primaryColor,
+                                fontWeight: FontWeight.bold, // Texto en negrita
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               SizedBox(height: sizeHeigt * 0.55, child: const Placeholder()),

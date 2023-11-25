@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_enhancer/domain/controller/theme_preferences.dart';
-import 'package:video_enhancer/presentation/screens/home_screen.dart';
+import 'package:vidcer/domain/controller/theme_preferences.dart';
+import 'package:vidcer/presentation/screens/home_screen.dart';
 import '../provider/riverpod_provider.dart';
 
 class LoadingScreen extends ConsumerWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_enhancer/infrastructure/datasources/url_launcher_helper.dart';
+import 'package:vidcer/infrastructure/datasources/url_launcher_helper.dart';
 
 class DrawerVidcer extends StatelessWidget {
   final BuildContext context;
