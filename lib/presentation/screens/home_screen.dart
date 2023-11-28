@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vidcer/domain/controller/theme.dart';
+import 'package:vidcer/presentation/screens/video_chooser.dart';
+import 'package:vidcer/presentation/screens/work_screen.dart';
 import 'package:vidcer/presentation/widgets/drawer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -61,7 +63,7 @@ class HomeScreen extends ConsumerWidget {
                           colors: [
                             Colors.orange.shade900,
                             Colors.orange.shade600,
-                          ], // Degradado azul
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -74,7 +76,11 @@ class HomeScreen extends ConsumerWidget {
                             height: 40.0,
                             child: FloatingActionButton(
                               onPressed: () {
-                                // Acción al presionar el botón
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const VideoChooser()),
+                                );
                               },
                               backgroundColor: Colors.black,
                               shape: RoundedRectangleBorder(
@@ -89,7 +95,7 @@ class HomeScreen extends ConsumerWidget {
                               'Nuevo proyecto',
                               style: TextStyle(
                                 color: vidcerTheme.primaryColor,
-                                fontWeight: FontWeight.bold, // Texto en negrita
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -100,44 +106,8 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                height: sizeHeigt * 0.55,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'No has dado permiso a la app de cargar tus videos',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      TextButton(
-                        child: const Text('Solicitar permiso'),
-                        onPressed: () async {
-                          var status = await Permission.storage.status;
-                          if (!status.isGranted) {
-                            status = await Permission.storage.request();
-                            if (status.isGranted) {
-                              // El permiso fue concedido
-                              Fluttertoast.showToast(
-                                msg: "Permiso concedido", // message
-                                toastLength: Toast.LENGTH_SHORT, // length
-                                gravity: ToastGravity.BOTTOM, // location
-                              );
-                            } else {
-                              // El permiso fue denegado
-                              Fluttertoast.showToast(
-                                msg: "Permiso denegado", // message
-                                toastLength: Toast.LENGTH_SHORT, // length
-                                gravity: ToastGravity.BOTTOM, // location
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              Placeholder(),
+              Placeholder(),
             ],
           ),
         ),

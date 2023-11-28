@@ -20,13 +20,13 @@ dependencies:
   percent_indicator: ^4.2.0
   url_launcher: ^6.2.1
   
-
   change_app_package_name: ^1.1.0
   image_picker: ^1.0.4
   video_player: ^2.8.1
   http: ^0.13.3
   permission_handler: ^11.0.1
   fluttertoast: ^8.2.4
+  animate_do: ^3.1.2
 
 dev_dependencies:
   flutter_test:
