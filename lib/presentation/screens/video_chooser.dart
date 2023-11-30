@@ -1,10 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vidcer/presentation/provider/riverpod_provider.dart';
-import 'package:vidcer/presentation/screens/video_player_screen.dart';
+import 'package:vidcer/presentation/screens/work_screen.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
 
 class VideoChooser extends ConsumerWidget {
   const VideoChooser({super.key});
@@ -38,69 +42,77 @@ class VideoChooser extends ConsumerWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.data == PermissionStatus.granted) {
             // Permisos otorgados, mostrar la galería de videos
-            return Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+            return FutureBuilder<List<FileSystemEntity>>(
+              future: _getVideos(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Padding(
+                    padding: const EdgeInsets.all(15.0),
                     child: GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 10.0,
+                        crossAxisSpacing: 5.0, // Reducir el espaciado
+                        mainAxisSpacing: 5.0, // Reducir el espaciado
                       ),
-                      itemCount: 10, // Puedes ajustar esto según tu necesidad
-                      shrinkWrap: true,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
-                        // Construir el widget del video en el índice actual
-                        return GestureDetector(
-                          onTap: () {
-                            ref.read(selectedVideoProvider.notifier).state =
-                                index;
-                          },
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                color: Colors.grey,
-                                // Agregar lógica para mostrar el video en lugar del contenedor
-                                child: Center(
-                                  child: Text('Video $index'),
+                        String path = snapshot.data![index].path;
+                        return FutureBuilder<Uint8List>(
+                          future: _getVideoThumbnail(path),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return GestureDetector(
+                                onTap: () {
+                                  print(
+                                      'Vídeo seleccionado: ${ref.watch(selectedVideoProvider.notifier).state}');
+                                  ref
+                                      .watch(selectedVideoProvider.notifier)
+                                      .state = (ref
+                                              .watch(selectedVideoProvider
+                                                  .notifier)
+                                              .state ==
+                                          path
+                                      ? null
+                                      : path);
+                                },
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Image.memory(
+                                      snapshot.data!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    if (ref
+                                            .watch(
+                                                selectedVideoProvider.notifier)
+                                            .state ==
+                                        path)
+                                      Container(
+                                        color: Colors.orange.withOpacity(0.6),
+                                      ),
+                                  ],
                                 ),
-                              ),
-                              if (ref
-                                      .read(selectedVideoProvider.notifier)
-                                      .state ==
-                                  index)
-                                const Icon(Icons.check_circle,
-                                    color: Colors.green, size: 50.0),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed:
-                      ref.read(selectedVideoProvider.notifier).state != null
-                          ? () {
-                              // Navegar a la nueva pantalla con el video seleccionado
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => VideoPlayerScreen(
-                                      videoIndex: ref
-                                          .read(selectedVideoProvider.notifier)
-                                          .state!),
+                              );
+                            } else {
+                              return Container(
+                                color: Colors.grey,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
                                 ),
                               );
                             }
-                          : null,
-                  child: Text('Comenzar'),
-                ),
-              ],
+                          },
+                        );
+                      },
+                    ),
+                  );
+                } else {
+                  return const Center(
+                    child: Text('No se encontraron videos.'),
+                  );
+                }
+              },
             );
           } else {
             // Permisos no otorgados, mostrar el botón para solicitar permisos
@@ -144,6 +156,97 @@ class VideoChooser extends ConsumerWidget {
           }
         },
       ),
+      floatingActionButton:
+          ref.watch(selectedVideoProvider.notifier).state != null
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WorkScreen(
+                          videoPath:
+                              ref.read(selectedVideoProvider.notifier).state!,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Mejorar'),
+                )
+              : null,
     );
   }
+
+  Future<List<FileSystemEntity>> _getVideos() async {
+    final List<String> directories = [
+      '/storage/emulated/0/DCIM',
+      '/storage/emulated/0/Movies',
+      '/storage/emulated/0/WhatsApp/Media/WhatsApp Video',
+      '/storage/emulated/0/Telegram/Telegram Video',
+      '/storage/emulated/0/Download',
+      // Añade más directorios si es necesario
+    ];
+
+    final List<String> videoExtensions = [
+      '.mp4',
+      '.avi',
+      '.mov',
+      '.flv',
+      '.wmv',
+      '.mkv'
+    ];
+
+    List<FileSystemEntity> videos = [];
+
+    for (String directoryPath in directories) {
+      final Directory dir = Directory(directoryPath);
+
+      if (await dir.exists()) {
+        videos.addAll(
+          dir
+              .listSync(followLinks: false, recursive: true)
+              .where((FileSystemEntity entity) {
+            return videoExtensions.any(
+                (extension) => entity.path.toLowerCase().endsWith(extension));
+          }).toList(),
+        );
+      }
+    }
+
+    return videos;
+  }
+
+  Future<Uint8List> _getVideoThumbnail(String videoPath) async {
+    final uint8list = await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 128,
+      quality: 25,
+    );
+    return uint8list!;
+  }
 }
+
+/*
+Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: ref.read(selectedVideoProvider.notifier).state !=
+                            null
+                        ? () {
+                            // Navegar a la nueva pantalla con el video seleccionado
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VideoPlayerScreen(
+                                    videoIndex: ref
+                                        .read(selectedVideoProvider.notifier)
+                                        .state!),
+                              ),
+                            );
+                          }
+                        : null,
+                    child: const Text('Comenzar'),
+                  ),
+                ),
+
+*/

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vidcer/domain/controller/theme.dart';
+import 'package:vidcer/presentation/screens/sample_state.dart';
 import 'package:vidcer/presentation/screens/video_chooser.dart';
 import 'package:vidcer/presentation/screens/work_screen.dart';
 import 'package:vidcer/presentation/widgets/drawer.dart';
@@ -52,8 +53,10 @@ class HomeScreen extends ConsumerWidget {
                 children: <Widget>[
                   InkWell(
                     onTap: () {
-                      // Acción al hacer clic en el Container
-                      // Puedes poner aquí la lógica que deseas ejecutar al hacer clic
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => MyButtonWidget()),
+                      );
                     },
                     child: Container(
                       height: sizeHeigt * 0.15,
@@ -79,7 +82,7 @@ class HomeScreen extends ConsumerWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const VideoChooser()),
+                                      builder: (_) => MyButtonWidget()),
                                 );
                               },
                               backgroundColor: Colors.black,
