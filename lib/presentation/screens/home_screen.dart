@@ -55,7 +55,7 @@ class HomeScreen extends ConsumerWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => MyButtonWidget()),
+                        MaterialPageRoute(builder: (_) => const VideoChooser()),
                       );
                     },
                     child: Container(
@@ -82,7 +82,7 @@ class HomeScreen extends ConsumerWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => MyButtonWidget()),
+                                      builder: (_) => const VideoChooser()),
                                 );
                               },
                               backgroundColor: Colors.black,
@@ -109,8 +109,8 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              Placeholder(),
-              Placeholder(),
+              const Placeholder(),
+              const Placeholder(),
             ],
           ),
         ),

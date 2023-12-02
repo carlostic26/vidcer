@@ -65,16 +65,13 @@ class VideoChooser extends ConsumerWidget {
                               return GestureDetector(
                                 onTap: () {
                                   print(
-                                      'Vídeo seleccionado: ${ref.watch(selectedVideoProvider.notifier).state}');
+                                      'Vídeo seleccionado: ${ref.watch(selectedVideoProvider)}');
                                   ref
-                                      .watch(selectedVideoProvider.notifier)
-                                      .state = (ref
-                                              .watch(selectedVideoProvider
-                                                  .notifier)
-                                              .state ==
-                                          path
-                                      ? null
-                                      : path);
+                                          .watch(selectedVideoProvider.notifier)
+                                          .state =
+                                      (ref.watch(selectedVideoProvider) == path
+                                          ? null
+                                          : path);
                                 },
                                 child: Stack(
                                   fit: StackFit.expand,
@@ -83,10 +80,7 @@ class VideoChooser extends ConsumerWidget {
                                       snapshot.data!,
                                       fit: BoxFit.cover,
                                     ),
-                                    if (ref
-                                            .watch(
-                                                selectedVideoProvider.notifier)
-                                            .state ==
+                                    if (ref.watch(selectedVideoProvider) ==
                                         path)
                                       Container(
                                         color: Colors.orange.withOpacity(0.6),
@@ -170,7 +164,7 @@ class VideoChooser extends ConsumerWidget {
                       ),
                     );
                   },
-                  child: const Text('Mejorar'),
+                  child: const Icon(Icons.check),
                 )
               : null,
     );
@@ -216,37 +210,19 @@ class VideoChooser extends ConsumerWidget {
   }
 
   Future<Uint8List> _getVideoThumbnail(String videoPath) async {
-    final uint8list = await VideoThumbnail.thumbnailData(
-      video: videoPath,
-      imageFormat: ImageFormat.JPEG,
-      maxWidth: 128,
-      quality: 25,
-    );
-    return uint8list!;
+    try {
+      final uint8list = await VideoThumbnail.thumbnailData(
+        video: videoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 128,
+        quality: 25,
+      );
+      print('Correct generating thumbnail for $videoPath');
+      return uint8list!;
+    } catch (e) {
+      print('Error generating thumbnail for $videoPath: $e');
+      return Uint8List(
+          0); // Return an empty Uint8List or handle the error appropriately
+    }
   }
 }
-
-/*
-Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: ref.read(selectedVideoProvider.notifier).state !=
-                            null
-                        ? () {
-                            // Navegar a la nueva pantalla con el video seleccionado
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VideoPlayerScreen(
-                                    videoIndex: ref
-                                        .read(selectedVideoProvider.notifier)
-                                        .state!),
-                              ),
-                            );
-                          }
-                        : null,
-                    child: const Text('Comenzar'),
-                  ),
-                ),
-
-*/
