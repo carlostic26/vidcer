@@ -29,6 +29,7 @@ dependencies:
   video_thumbnail: ^0.5.3
   flutter_media_metadata: ^1.0.0+1
   flutter_riverpod: ^2.4.9
+  flutter_ffmpeg: ^0.4.2
 
 dev_dependencies:
   flutter_test:

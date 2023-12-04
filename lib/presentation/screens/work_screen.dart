@@ -1,6 +1,7 @@
-import 'package:animate_do/animate_do.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 
 class WorkScreen extends StatefulWidget {
   final String videoPath;
@@ -13,6 +14,10 @@ class WorkScreen extends StatefulWidget {
 
 class _WorkScreenState extends State<WorkScreen> {
   late VideoPlayerController _controller;
+  double _brightness = 1.0;
+  double _contrast = 1.0;
+  double _saturation = 1.0;
+  double _currentTime = 0.0;
 
   @override
   void initState() {
@@ -21,12 +26,20 @@ class _WorkScreenState extends State<WorkScreen> {
       ..initialize().then((_) {
         setState(() {});
       });
+
+    // Set up a listener to update video adjustments and current time in real-time
+    _controller.addListener(() {
+      if (!_controller.value.isPlaying) {
+        setState(() {
+          _currentTime = _controller.value.position.inSeconds.toDouble();
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final sizeHeigt = MediaQuery.of(context).size.height;
-    final sizeWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -38,13 +51,6 @@ class _WorkScreenState extends State<WorkScreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text(
-          'Work screen',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.0, /*fontWeight: FontWeight.bold*/
-          ),
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.all(10),
@@ -54,21 +60,21 @@ class _WorkScreenState extends State<WorkScreen> {
                   color: Colors.white,
                   icon: const Icon(Icons.tips_and_updates),
                   onPressed: () {
-                    //shareCourse();
+                    _applyFilters();
                   },
                 ),
                 IconButton(
                   color: Colors.white,
-                  icon: const Icon(Icons.tips_and_updates),
+                  icon: const Icon(Icons.tune),
                   onPressed: () {
-                    dialogConfigRender(context, sizeHeigt);
+                    _showTuneDialog(context);
                   },
                 ),
                 IconButton(
                   color: Colors.white,
                   icon: const Icon(Icons.file_upload),
                   onPressed: () {
-                    //shareCourse();
+                    // shareCourse();
                   },
                 ),
               ],
@@ -81,13 +87,39 @@ class _WorkScreenState extends State<WorkScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Center(
-              child: _controller.value.isInitialized
-                  ? AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: VideoPlayer(_controller),
-                    )
-                  : const CircularProgressIndicator(),
+            Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                Center(
+                  child: _controller.value.isInitialized
+                      ? AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        )
+                      : const CircularProgressIndicator(),
+                ),
+                Container(
+                  height: 40,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Slider(
+                          value: _currentTime,
+                          min: 0.0,
+                          max: _controller.value.duration.inSeconds.toDouble(),
+                          onChanged: (double value) {
+                            setState(() {
+                              _currentTime = value;
+                            });
+                            _controller
+                                .seekTo(Duration(seconds: value.toInt()));
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(2.0),
@@ -130,69 +162,111 @@ class _WorkScreenState extends State<WorkScreen> {
     );
   }
 
+  void _showTuneDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Adjust Video'),
+              content: Column(
+                children: [
+                  _buildSlider(
+                    'Brightness',
+                    _brightness,
+                    (double value) {
+                      setState(() {
+                        _brightness = value;
+                      });
+                      _updateVideoAdjustments();
+                    },
+                  ),
+                  _buildSlider(
+                    'Contrast',
+                    _contrast,
+                    (double value) {
+                      setState(() {
+                        _contrast = value;
+                      });
+                      _updateVideoAdjustments();
+                    },
+                  ),
+                  _buildSlider(
+                    'Saturation',
+                    _saturation,
+                    (double value) {
+                      setState(() {
+                        _saturation = value;
+                      });
+                      _updateVideoAdjustments();
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSlider(
+      String label, double value, ValueChanged<double> onChanged) {
+    return Column(
+      children: [
+        Text(label),
+        Slider(
+          value: value,
+          min: 0.5,
+          max: 1.5,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  void _applyFilters() async {
+    final String outputPath =
+        widget.videoPath.replaceFirst('.mp4', '_filtered.mp4');
+    final String command =
+        '-i ${widget.videoPath} -vf "eq=brightness=$_brightness:contrast=$_contrast:saturation=$_saturation" $outputPath';
+    int rc = await FlutterFFmpeg().execute(command);
+    print("FFmpeg process exited with rc $rc");
+
+    _controller = VideoPlayerController.network(outputPath)
+      ..initialize().then((_) {
+        setState(() {});
+      });
+  }
+
+  void _updateVideoAdjustments() {
+    if (_controller.value.isInitialized && !_controller.value.isPlaying) {
+      applyVideoFilter();
+    }
+  }
+
+  void applyVideoFilter() {
+    final String command =
+        '-i ${widget.videoPath} -vf "eq=brightness=$_brightness:contrast=$_contrast:saturation=$_saturation" output.mp4';
+
+    FlutterFFmpeg().execute(command).then((rc) {
+      print('FFmpeg process exited with rc $rc');
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
     _controller.dispose();
-  }
-
-  void dialogConfigRender(BuildContext context, sizeHeigt) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor:
-          Colors.transparent, // Esto hace que el fondo sea transparente
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return SlideInDown(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(0, sizeHeigt * 0.06, 0, 0),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Material(
-                type: MaterialType.transparency,
-                child: Container(
-                  height: MediaQuery.of(context).size.height / 2,
-                  decoration: const BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(
-                          40), // Esto redondea el borde inferior izquierdo del diálogo
-                      bottomRight: Radius.circular(
-                          40), // Esto redondea el borde inferior derecho del diálogo
-                    ),
-                  ),
-                  margin: EdgeInsets.only(bottom: sizeHeigt * 0.4),
-                  child: Column(
-                    children: [
-                      Slider(
-                        value: 0.5,
-                        onChanged: (double newValue) {
-                          // Aquí puedes guardar el valor del Slider
-                        },
-                      ),
-                      Slider(
-                        value: 0.5,
-                        onChanged: (double newValue) {
-                          // Aquí puedes guardar el valor del Slider
-                        },
-                      ),
-                      Slider(
-                        value: 0.5,
-                        onChanged: (double newValue) {
-                          // Aquí puedes guardar el valor del Slider
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 }
