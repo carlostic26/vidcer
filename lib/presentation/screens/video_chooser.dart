@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vidcer/presentation/provider/riverpod_provider.dart';
 import 'package:vidcer/presentation/screens/work_screen.dart';
+import 'package:vidcer/presentation/screens/work_screen_new.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';

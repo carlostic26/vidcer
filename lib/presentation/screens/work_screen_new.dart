@@ -1,3 +1,162 @@
+/* import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
+
+class WorkScreenNew extends StatefulWidget {
+  String videoPath;
+
+  WorkScreenNew({Key? key, required this.videoPath}) : super(key: key);
+
+  @override
+  _WorkScreenNewState createState() => _WorkScreenNewState();
+}
+
+class _WorkScreenNewState extends State<WorkScreenNew> {
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+
+  @override
+  void initState() {
+    _controller = VideoPlayerController.network(widget.videoPath);
+    _initializeVideoPlayerFuture = _controller.initialize();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _applyFilters() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Procesando...')),
+    );
+
+    print("START TO PROCESS...");
+
+    String commandToExecute =
+        '-i ${widget.videoPath} -vf "eq=brightness=0.06:saturation=2" output.mp4';
+    await FFmpegKit.executeAsync(commandToExecute, (session) async {
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        print("SUCCESS");
+        setState(() {
+          widget.videoPath = 'output.mp4';
+          _controller = VideoPlayerController.file(File(widget.videoPath));
+          _initializeVideoPlayerFuture = _controller.initialize();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Video procesado correctamente')),
+        );
+      } else if (ReturnCode.isCancel(returnCode)) {
+        print("CANCEL");
+      } else {
+        print("ERROR");
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              children: [
+                IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.tips_and_updates),
+                  onPressed: _applyFilters,
+                ),
+              ],
+            ),
+          ),
+        ],
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                Center(
+                  child: FutureBuilder(
+                    future: _initializeVideoPlayerFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.play_arrow),
+                    onPressed: () {
+                      setState(() {
+                        _controller.play();
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.pause),
+                    onPressed: () {
+                      setState(() {
+                        _controller.pause();
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.stop),
+                    onPressed: () {
+                      setState(() {
+                        _controller.pause();
+                        _controller.seekTo(const Duration(seconds: 0));
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+} */
+
+/*
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -334,3 +493,5 @@ class _WorkScreenState extends State<WorkScreen> {
     _controller.dispose();
   }
 }
+
+*/

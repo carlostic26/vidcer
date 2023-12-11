@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vidcer/domain/controller/theme.dart';
 import 'package:vidcer/presentation/screens/sample_state.dart';
 import 'package:vidcer/presentation/screens/video_chooser.dart';
-import 'package:vidcer/presentation/screens/work_screen.dart';
 import 'package:vidcer/presentation/widgets/drawer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
